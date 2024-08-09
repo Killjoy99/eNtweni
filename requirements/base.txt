@@ -1,0 +1,11 @@
+fastapi
+sqlalchemy
+pydantic
+PyJWT
+fastapi-limiter
+sqladmin
+passlib
+fastapi-offline #for testing purposes
+https://github.com/kivymd/KivyMD/archive/master.zip
+kivy
+asyncpg         # did not work with python3.13

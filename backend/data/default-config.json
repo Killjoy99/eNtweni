@@ -1,0 +1,29 @@
+{
+	"listeners": {
+		"*:80": {
+			"pass": "applications/default"
+		},
+        "*:8000": {
+			"pass": "applications/testapp"
+		}
+	},
+
+	"routes": [],
+	"applications": {
+		"default": {
+			"type": "php",
+			"processes": 20,
+			"root": "/var/www/html/"
+		},
+        "testapp": {
+            "type": "python3.11",
+            "working_directory": "/var/www/entweni/testapp/",
+            "path": "/var/www/entweni/testapp/",
+            "module": "main",
+            "environment": {
+                "PYTHONHOME": "~/.venvs/serpent99/bin",
+                "PYTHONPATH": "/var/www/entweni/testapp"
+            }
+        }
+	}
+}

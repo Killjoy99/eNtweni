@@ -1,0 +1,19 @@
+uvicorn
+fastapi-offline #for testing purposes
+plyer
+pydantic
+pydantic-settings
+fastapi
+boto3
+PyJWT
+httpx
+pyinstrument
+email-validator
+aiofiles
+redis
+aioredis
+sqlalchemy
+fastapi-limiter
+sqladmin
+passlib
+asyncpg

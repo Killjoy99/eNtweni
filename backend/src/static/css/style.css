@@ -1,0 +1,61 @@
+/* Custom styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #def0f0;
+}
+
+.navbar {
+    margin-bottom: 2rem;
+}
+
+.hero-section {
+    background-image: url('/static/images/hero.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 5rem 1rem;
+    text-align: center;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.services-section {
+    padding: 3rem 1rem;
+}
+
+.service-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 1, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+}
+
+.service-icon {
+    font-size: 3rem;
+    color: #007bff;
+}
+
+.footer {
+    background-color: #343a40;
+    color: rgb(53, 151, 7);
+    padding: 0.5rem 1rem;
+    text-align: center;
+    vertical-align: middle;
+    margin-top: 3rem;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}

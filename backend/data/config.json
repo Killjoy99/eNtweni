@@ -1,0 +1,37 @@
+{
+  "listeners": {
+    "*:80": {
+      "pass": "applications/default"
+    },
+	  "*:8001": {
+      "pass": "applications/testapp"
+    },
+    "*:8000": {
+      "pass": "applications/entwenibooking"
+    }
+  },
+  "routes": [],
+  "applications": {
+    "default": {
+      "type": "php",
+      "processes": 20,
+      "root": "/var/www/html/"
+    },
+    "testapp": {
+      "type": "python3.11",
+      "path": "/var/www/entweni/",
+      "module": "testapp.main",
+      "callable": "app",
+      "protocol": "asgi",
+      "user": "testapp",
+      "group": "testapp"
+    },
+    "entwenibooking": {
+      "type": "python3.11",
+      "path": "/var/www/entweni/entwenibooking/src/",
+      "module": "main",
+      "callable": "app",
+      "protocol": "asgi"
+    }
+  }
+}
