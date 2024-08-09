@@ -3,18 +3,22 @@ from os import path
 
 import redis.asyncio as aioredis
 from admin.admin import UserAdmin
-from api import api_router
+from auth.routers import auth_router
 from core.config import settings
+from core.routers import home_router
 from core.utils import templates
-from database.core import async_engine
-from fastapi import FastAPI, Request
+from database.core import async_engine, get_async_db
+from fastapi import Depends, FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi_limiter import FastAPILimiter
+from plugins.manager import PluginManager
 from pyinstrument import Profiler
 from pyinstrument.renderers.html import HTMLRenderer  # noqa: F401
+from registration.routers import account_router
 from sqladmin import Admin
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class PyInstrumentMiddleware:
@@ -43,7 +47,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-app = FastAPI(openapi_url="")
+app = FastAPI(
+    title="eNtweniBooking",
+    description="Welcome to eNtweniBooking's API documentation!",
+    version="0.1.2",
+)
+
+
+plugin_manager = PluginManager(app=app)
 
 # app.add_middleware(PyInstrumentMiddleware)
 app.add_middleware(
@@ -55,34 +66,7 @@ app.add_middleware(
 )
 
 
-# Rate limiting
-@app.on_event("startup")
-async def startup():
-    # Load the startup logic
-    redis_limiter = aioredis.from_url(url="redis://localhost:6379")
-    await FastAPILimiter().init(redis=redis_limiter)
-
-
-# app.add_middleware(
-#     FastAPILimiter,
-#     rate_limit="5/minute"        # Adjust according to your needs
-# )
-
-frontend = FastAPI(openapi_url="")
-api = FastAPI(
-    title="eNtweniBooking",
-    description="Welcome to eNtweniBooking's API documentation!",
-    root_path="/api/v1",
-    version="0.1.2",
-    openapi_url="/docs/openapi.json",
-    redoc_url="/docs",
-)
-
-admin = Admin(api, async_engine)
-admin.add_view(UserAdmin)
-
-
-@frontend.middleware("http")
+@app.middleware("http")
 async def default_page(request: Request, call_next):
     response = await call_next(request)
     if response.status_code == 404:
@@ -94,19 +78,53 @@ async def default_page(request: Request, call_next):
     return response
 
 
-@frontend.get("/", name="index")
-def index(request: Request):
-    return templates.TemplateResponse(request=request, name="index.html")
+# Rate limiting
+@app.on_event("startup")
+async def startup():
+    # Load the startup logic
+    redis_limiter = aioredis.from_url(url="redis://localhost:6379")
+    await FastAPILimiter().init(redis=redis_limiter)
+
+    # Register core (default) microservices
+    # plugin_manager.initialise_microservices()
+
+
+# Routes management
+app.include_router(home_router)
+app.include_router(account_router)
+app.include_router(auth_router)
+# Register microservices
+plugin_manager.register_microservice(microservice_name="booking")
+plugin_manager.register_microservice(microservice_name="school_management")
+plugin_manager.register_microservice(microservice_name="budgeting")
+plugin_manager.register_microservice(microservice_name="housing")
+
+# Initialise the microservices
+plugin_manager.initialise_microservices()
+
+# Test disable a microservice
+plugin_manager.disable_microservice(microservice_name="school_management")
+
+
+admin = Admin(app, async_engine)
+admin.add_view(UserAdmin)
 
 
 if settings.STATIC_DIR and path.isdir(settings.STATIC_DIR):
     # Consider changing the route for static files to avoid conflicts
-    frontend.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
+    app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 
-api.include_router(api_router)
 
-app.mount("/api/v1", app=api)
-app.mount("/", app=frontend)
+@app.get("/", name="index", tags=["Home"])
+def index(request: Request):
+    return templates.TemplateResponse(request=request, name="index.html")
+
+
+@app.get("/healthcheck", name="healthcheck", tags=["Home"])
+async def healthcheck(
+    db_session: AsyncSession = Depends(get_async_db),
+):
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "STATUS_OK"})
 
 
 if __name__ == "__main__":

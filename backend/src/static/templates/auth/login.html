@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    eNtweniBooking - Login
+    eNtweni - Login
 {% endblock %}
 
 {% block content %}
@@ -25,13 +25,13 @@
                     <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
                 </div>
                 <div class="d-grid mb-3">
-                    <button class="btn btn-primary" type="submit">Login</button>
+                    <button class="btn btn-entweni" type="submit">Login</button>
                 </div>
             </form>
             <div class="text-center mb-3">
                 <p>or login with</p>
                 <div class="d-grid gap-2 justify-content-center">
-                    <a href="{{ url_for('google_login') }}" class="btn btn-danger">
+                    <a href="{{ url_for('google_login') }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-google"></i> Google
                     </a>
                 </div>

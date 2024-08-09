@@ -12,7 +12,7 @@ body {
     background-image: url('/static/images/hero.jpg');
     background-size: cover;
     background-position: center;
-    color: white;
+    color: aquamarine;
     padding: 5rem 1rem;
     text-align: center;
 }
@@ -35,6 +35,7 @@ body {
 
 .service-card:hover {
     transform: translateY(-10px);
+    background-color: aquamarine;
 }
 
 .service-icon {
@@ -42,9 +43,57 @@ body {
     color: #007bff;
 }
 
+.btn-entweni{
+    background-color: aquamarine;
+    color: black;
+}
+
+.btn-entweni:hover{
+    background-color: aqua;
+    color: black;
+}
+
+.logo {
+    width: 240px;
+    height: 240px;
+}
+
+.illustration{
+    width: 360px;
+    height: 360px;
+}
+
+.a-entweni {
+    text-decoration: none;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.card-title {
+    font-weight: bold;
+}
+
+.card-text {
+    margin-bottom: 15px;
+}
+
+.list-group-item {
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.list-group-item:not(:last-child) {
+    margin-bottom: 10px;
+    background-color: #e9ecef;
+}
+
 .footer {
     background-color: #343a40;
-    color: rgb(53, 151, 7);
+    color: aquamarine;
     padding: 0.5rem 1rem;
     text-align: center;
     vertical-align: middle;

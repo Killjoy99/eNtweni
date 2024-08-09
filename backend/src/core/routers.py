@@ -55,3 +55,8 @@ async def home(
     else:
         # Return a JSON response for non-template requests
         return JSONResponse(content={"message": "Home endpoint accessed"})
+
+
+@home_router.get("/microservices", name="microservices_home")
+async def microservices_home():
+    return {"detail": "List of all Available microservices"}
