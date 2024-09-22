@@ -1,0 +1,25 @@
+<WelcomeScreen>
+    md_bg_color: app.theme_cls.backgroundColor
+
+    MDBoxLayout:
+        MDLabel:
+            id: label
+            markup: True
+            text: root.status
+
+        MDLabel:
+            id: label2
+            markup: True
+            text: root.name
+
+    MDBoxLayout:
+        orientation: 'horizontal'
+        MDTextField:
+            id: name_field
+            radius: dp(0)
+
+        MDButton:
+            on_release: root.change_name(name_field.text)
+            radius: dp(0)
+            MDButtonText:
+                text: "Change Username"

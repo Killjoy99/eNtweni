@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>eNtweni - Permissions</title>
+{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <h2>Create Permission</h2>
+        <form method="POST" action="/create_permission">
+            <div class="mb-3">
+                <label for="permission_name" class="form-label">Permission Name</label>
+                <input type="text" class="form-control" id="permission_name" name="permission_name" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Permission</button>
+        </form>
+    </div>
+{% endblock %}

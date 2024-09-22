@@ -1,44 +1,26 @@
-from core.config import settings
+from datetime import datetime
+from typing import Union
+
 from pydantic import BaseModel, EmailStr
 
 
-class GoogleLoginSchema(BaseModel):
-    access_token: str
-
-
-class UserLoginSchema(BaseModel):
-    login_identifier: str
-    password: str
-    # @field_validator("password", mode="after")
-    # @classmethod
-    # async def valid_password(cls, password: str) -> str:
-    #     if not re.match(STRONG_PASSWORD_PATTERN, password):
-    #         raise ValueError(
-    #             "Password must contain atleast"
-    #             "one lower case character, "
-    #             "one upper case character, "
-    #             "digit or "
-    #             "special symbol"
-    #         )
-
-    #     return password
-
-
-class UserLoginResponseSchema(BaseModel):
-    username: str
-    email: EmailStr
+class UserCreate(BaseModel):
     first_name: str
     last_name: str
-    settings: dict
-    user_image: str | None
-    # role: List[Roles]
+    email: EmailStr
+    password: str
 
-    @classmethod
-    def add_image_host(cls, image_url: str | None) -> str | None:
-        if image_url:
-            if "/static/" in image_url and settings.ENVIRONMENT == "development":
-                return settings.STATIC_HOST + image_url
-        return image_url
 
-    class Config:
-        from_attribute = True
+class UserResponse(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    email: EmailStr
+    created_at: Union[None, datetime] = None
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "Bearer"
+    expires_in: int

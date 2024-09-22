@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>eNtweni - Create Role</title>
+{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <h2>Create Role</h2>
+        <form method="POST" action="/create_role">
+            <div class="mb-3">
+                <label for="role_name" class="form-label">Role Name</label>
+                <input type="text" class="form-control" id="role_name" name="role_name" required>
+            </div>
+            <div class="mb-3">
+                <label for="permissions" class="form-label">Permissions</label>
+                <select class="form-select" id="permissions" name="permissions" multiple>
+                    <!-- Populate permissions dynamically -->
+                    <option value="read">Read</option>
+                    <option value="write">Write</option>
+                    <option value="delete">Delete</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Role</button>
+        </form>
+    </div>
+{% endblock %}

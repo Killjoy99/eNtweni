@@ -1,21 +1,29 @@
+import logging
 from datetime import datetime
 from typing import AsyncGenerator
 
+from core.config import settings
 from sqlalchemy import Boolean, DateTime, func
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncAttrs,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from .config import database_settings
+logger = logging.getLogger(__name__)
 
-DATABASE_URL = database_settings.DATABASE_URL or (
-    f"postgresql+asyncpg://{database_settings.DATABASE_USER}:{database_settings.DATABASE_PASSWORD}@{database_settings.DATABASE_HOST}:{database_settings.DATABASE_PORT}/{database_settings.DATABASE_NAME}"
+
+DATABASE_URL = settings.DATABASE_URL or (
+    f"postgresql+asyncpg://{settings.DATABASE_USER}:{settings.DATABASE_PASSWORD}@{settings.DATABASE_HOST}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}"
 )
 
 async_engine = create_async_engine(
-    database_settings.DATABASE_URL,
-    pool_size=database_settings.DATABASE_ENGINE_POOL_SIZE,
-    max_overflow=database_settings.DATABASE_ENGINE_MAX_OVERFLOW,
-    pool_pre_ping=database_settings.DATABASE_ENGINE_POOL_PING,
+    settings.DATABASE_URL,
+    pool_size=settings.DATABASE_ENGINE_POOL_SIZE,
+    max_overflow=settings.DATABASE_ENGINE_MAX_OVERFLOW,
+    pool_pre_ping=settings.DATABASE_ENGINE_POOL_PING,
     isolation_level="AUTOCOMMIT",
 )
 AsyncSessionLocal = async_sessionmaker(bind=async_engine)
@@ -27,7 +35,7 @@ class RemoveBaseFieldMixin:
     is_deleted: None
 
 
-class Base(DeclarativeBase):
+class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
     # TODO: find a way to not create a schema each time a table is created
 
@@ -43,12 +51,17 @@ class Base(DeclarativeBase):
         return {field.name: getattr(self, field.name) for field in self.__table__.c}
 
 
-async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
+async def init_models():
     async with async_engine.begin() as async_conn:
         await async_conn.run_sync(Base.metadata.create_all)
 
-    db = AsyncSessionLocal()
+
+async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
+    await init_models()
+    async_session = async_sessionmaker(async_engine, expire_on_commit=False)
+
     try:
-        yield db
+        async with async_session() as session:
+            yield session
     finally:
-        await db.close()
+        await session.close()

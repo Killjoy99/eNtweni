@@ -129,7 +129,12 @@ class PluginManager:
         async def maintenance(request: Request, call_next):
             if request.url.path.startswith(self.plugins[microservice_name]["prefix"]):
                 return HTMLResponse(
-                    content=f"<h1>503 Service Unavailable</h1><p>This service <b>'{microservice_name}'</b> is currently under maintenance.</p><p> Please try again later.</p>",
+                    content="""
+                        <h1>503 Service Unavailable</h1>
+                        <p>This service is currently under maintenance. Please try again later.</p>
+                        <p>Estimated Time of Availability: 12 OCT 2024 12:00 PM UTC</p>
+                        <p>If you need immediate assistance, please contact support at <b>support@entweni.com</b></p>
+                    """,
                     status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 )
             return await call_next(request)

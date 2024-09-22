@@ -1,12 +1,18 @@
-from fastapi import APIRouter
+from core.utils import templates
+from fastapi import APIRouter, Request, Response, status
 
 router = APIRouter()
 
 
 @router.get("", name="booking_home")
-async def get_bookings():
+async def bookings_index(request: Request, response: Response):
     # Implementation
-    return {"message": "Booking Module Home Page"}
+    return templates.TemplateResponse(
+        request=request,
+        name="microservices/booking/index.html",
+        status_code=status.HTTP_200_OK,
+        context={},
+    )
 
 
 @router.post("/bookings")

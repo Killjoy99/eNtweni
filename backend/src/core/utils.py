@@ -17,3 +17,6 @@ def check_accept_header(request: Request) -> bool:
     """
     accept_header = request.headers.get("Accept")
     return "text/html" in accept_header if accept_header else False
+
+
+"""To enforce role based access control"""

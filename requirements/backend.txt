@@ -4,7 +4,7 @@ plyer
 pydantic
 pydantic-settings
 fastapi
-boto3
+boto3   #AWS file upload and referencing
 PyJWT
 httpx
 pyinstrument
@@ -17,3 +17,5 @@ fastapi-limiter
 sqladmin
 passlib
 asyncpg
+alembic
+pyotp

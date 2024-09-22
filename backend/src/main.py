@@ -4,21 +4,25 @@ from os import path
 import redis.asyncio as aioredis
 from admin.admin import UserAdmin
 from auth.routers import auth_router
+from auth.utils import JWTAuth
 from core.config import settings
 from core.routers import home_router
 from core.utils import templates
-from database.core import async_engine, get_async_db
-from fastapi import Depends, FastAPI, Request, status
+from database.core import async_engine, init_models
+from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi_limiter import FastAPILimiter
+from fastapi_offline import FastAPIOffline
+
+# from organisation.routers import organisation_router
 from plugins.manager import PluginManager
 from pyinstrument import Profiler
 from pyinstrument.renderers.html import HTMLRenderer  # noqa: F401
-from registration.routers import account_router
+
+# from registration.routers import account_router
 from sqladmin import Admin
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class PyInstrumentMiddleware:
@@ -47,7 +51,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-app = FastAPI(
+app = FastAPIOffline(
     title="eNtweniBooking",
     description="Welcome to eNtweniBooking's API documentation!",
     version="0.1.2",
@@ -64,6 +68,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(JWTAuth)
 
 
 @app.middleware("http")
@@ -85,46 +90,42 @@ async def startup():
     redis_limiter = aioredis.from_url(url="redis://localhost:6379")
     await FastAPILimiter().init(redis=redis_limiter)
 
+    # Initialise the database models (Schema)
+    await init_models()
+
     # Register core (default) microservices
     # plugin_manager.initialise_microservices()
 
 
 # Routes management
 app.include_router(home_router)
-app.include_router(account_router)
 app.include_router(auth_router)
+# app.include_router(organisation_router)
 # Register microservices
 plugin_manager.register_microservice(microservice_name="booking")
 plugin_manager.register_microservice(microservice_name="school_management")
-plugin_manager.register_microservice(microservice_name="budgeting")
-plugin_manager.register_microservice(microservice_name="housing")
+# plugin_manager.register_microservice(microservice_name="budgeting")
+# plugin_manager.register_microservice(microservice_name="housing")
 
 # Initialise the microservices
 plugin_manager.initialise_microservices()
 
 # Test disable a microservice
-plugin_manager.disable_microservice(microservice_name="school_management")
+# plugin_manager.disable_microservice(microservice_name="school_management")
+# plugin_manager.disable_microservice(microservice_name="booking")
 
 
 admin = Admin(app, async_engine)
 admin.add_view(UserAdmin)
+# admin.add_view(OrganisationAdmin)
+# admin.add_view(OrganisationUserAdmin)
+# admin.add_view(RoleAdmin)
+# admin.add_view(PermissionAdmin)
 
 
 if settings.STATIC_DIR and path.isdir(settings.STATIC_DIR):
     # Consider changing the route for static files to avoid conflicts
     app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
-
-
-@app.get("/", name="index", tags=["Home"])
-def index(request: Request):
-    return templates.TemplateResponse(request=request, name="index.html")
-
-
-@app.get("/healthcheck", name="healthcheck", tags=["Home"])
-async def healthcheck(
-    db_session: AsyncSession = Depends(get_async_db),
-):
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "STATUS_OK"})
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import logging
 import os
 from os import path
 from random import randint
+from urllib import parse
 
 import boto3
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -10,26 +11,94 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class GlobalSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    ENVIRONMENT: str = "development"
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     # App Settings
-    ALLOWED_ORIGINS: str = "http://127.0.0.1:3000,http://localhost:3000"
-
-    #################################### logging ####################################
-    LOG_LEVEL: int = logging.DEBUG
-    #################################### logging ####################################
-
-    #################################### sentry ####################################
-    SENTRY_DSN: str = ""
-    #################################### sentry ####################################
-
-    #################################### static files ####################################
-    STATIC_HOST: str = "http://localhost:8001"
-    DEFAULT_STATIC_DIR: str = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), os.path.join("../static")
+    ALLOWED_ORIGINS: str = os.getenv(
+        "ALLOWED_ORIGINS", "http://127.0.0.1:3000,http://localhost:3000"
     )
-    STATIC_DIR: str = DEFAULT_STATIC_DIR
-    TEMPLATE_DIR: str = path.join(STATIC_DIR, "templates")
+
+    #################################### logging ####################################
+    LOG_LEVEL: int = os.getenv("LOG_LEVEL", logging.DEBUG)
+    #################################### logging ####################################
+
+    #################################### sentry ####################################
+    SENTRY_DSN: str = os.getenv("SENTRY_DSN", "")
+    #################################### sentry ####################################
+
     #################################### static files ####################################
+    STATIC_HOST: str = os.getenv("STATIC_HOST", "http://localhost:8001")
+    DEFAULT_STATIC_DIR: str = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)), os.path.join("../../static")
+    )
+    STATIC_DIR: str = os.getenv("STATIC_DIR", DEFAULT_STATIC_DIR)
+    TEMPLATE_DIR: str = os.getenv("TEMPLATE_DIR", path.join(STATIC_DIR, "templates"))
+    #################################### static files ####################################
+
+    #################################### DATABASE RELATED ####################################
+    DATABASE_USER: str = os.getenv("DATABASE_USER", "serpent99")
+    DATABASE_PASSWORD: str = os.getenv("DATABASE_PASSWORD", "Mamlangeni0711")
+    DATABASE_HOST: str = os.getenv("DATABASE_HOST", "localhost")
+    DATABASE_PORT: str = os.getenv("DATABASE_PORT", "5432")
+    DATABASE_NAME: str = os.getenv("DATABASE_NAME", "entweni")
+    DATABASE_SCHEMA: str = os.getenv("DATABASE_SCHEMA", "entweni")
+    DATABASE_ENGINE_POOL_SIZE: int = os.getenv("DATABASE_ENGINE_POOL_SIZE", 20)
+    DATABASE_ENGINE_MAX_OVERFLOW: int = os.getenv("DATABASE_ENGINE_MAX_OVERFLOW", 0)
+    # Deal with DB disconnects
+    # https://docs.sqlalchemy.org/en/20/core/pooling.html#pool-disconnects
+    DATABASE_ENGINE_POOL_PING: bool = os.getenv("DATABASE_ENGINE_POOL_PING", False)
+    # this will support special chars for credentials
+    _QUOTED_DATABASE_PASSWORD: str = parse.quote(str(DATABASE_PASSWORD))
+    # specify a single database URL
+    DATABASE_URL: str = f"postgresql+asyncpg://{DATABASE_USER}:{_QUOTED_DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
+
+    ############## redis for caching ################
+    REDIS_CACHE_ENABLED: bool = os.getenv("REDIS_CACHE_ENABLED", True)
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "auth-redis")
+    REDIS_PORT: str | int = os.getenv("REDIS_PORT", 6379)
+    REDIS_PASSWORD: str | None = os.getenv("REDIS_PASSWORD", None)
+    REDIS_CACHE_EXPIRATION_SECONDS: int = os.getenv(
+        "REDIS_CACHE_EXPIRATION_SECONDS", 60 * 30
+    )
+    REDIS_DB: int = os.getenv("REDIS_DB", 0)
+    ############## redis for caching ###############
+    #################################### DATABASE RELATED ####################################
+
+    #################################### auth related ####################################
+    JWT_ACCESS_SECRET_KEY: str = os.getenv(
+        "JWT_ACCESS_SECRET_KEY", "9d9bc4d77ac3a6fce1869ec8222729d2"
+    )
+    ENCRYPTION_ALGORITHM: str = os.getenv("ENCRYPTION_ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)
+    NEW_ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv(
+        "NEW_ACCESS_TOKEN_EXPIRE_MINUTES", 120
+    )
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = os.getenv(
+        "REFRESH_TOKEN_EXPIRE_MINUTES", 60 * 24
+    )
+    # Google Auth
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    GOOGLE_USERINFO_URL: str = os.getenv(
+        "GOOGLE_USERINFO_URL", "https://www.googleapis.com/oauth2/v3/userinfo"
+    )
+    GOOGLE_AUTH_URL: str = os.getenv(
+        "GOOGLE_AUTH_URL", "https://accounts.google.com/o/oauth2/auth"
+    )
+    GOOGLE_TOKEN_URL: str = os.getenv(
+        "GOOGLE_TOKEN_URL", "https://oauth2.googleapis.com/token"
+    )
+    REDIRECT_URI: str = os.getenv(
+        "REDIRECT_URI", "http://localhost:8000/api/v1/auth/callback"
+    )
+    # openapi
+    # OPENAPI_PROJECT_SECRET_KEY: str
+    #################################### auth related ####################################
+
+    #################################### admin ####################################
+    ADMIN_SECRET_KEY: str = os.getenv(
+        "ADMIN_SECRET_KEY", "Hv9LGqARc473ceBUYDw1FR0QaXOA3Ky4"
+    )
+    #################################### admin ####################################
 
 
 class TestSettings(GlobalSettings):
