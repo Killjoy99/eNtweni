@@ -12,15 +12,15 @@ from core.utils import templates
 
 logger = logging.getLogger(__name__)
 
-home_router = APIRouter(tags=["Home"])
+home_router = APIRouter(tags=["Core"])
 
 
-@home_router.get("/", name="index", tags=["Home"])
+@home_router.get("/", name="index", operation_id="index")
 def index(request: Request):
     return templates.TemplateResponse(request=request, name="core/index.html")
 
 
-@home_router.get("/healthcheck", name="healthcheck", tags=["Home"])
+@home_router.get("/healthcheck", name="healthcheck", operation_id="healthcheck")
 async def healthcheck(
     db_session: AsyncSession = Depends(get_async_db),
 ):

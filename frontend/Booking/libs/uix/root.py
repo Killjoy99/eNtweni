@@ -10,6 +10,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import FadeTransition
 from kivymd.app import MDApp
 from kivymd.uix.screenmanager import MDScreenManager
+from libs.applibs.services.generated_connection_manager import create_client
 from libs.applibs.utils import file_utils
 
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +28,7 @@ class Root(MDScreenManager):
     _preload_cache = {}  # Track preloaded screens
     back_press_count = 0  # Track back button presses
     back_press_timer = None  # Timer reference for resseting the back_press_count
+    connection_client = create_client()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

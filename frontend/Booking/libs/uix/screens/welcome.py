@@ -3,6 +3,7 @@ import logging
 from kivy.clock import Clock
 from kivy.properties import StringProperty
 from kivymd.uix.screen import MDScreen
+from libs.applibs.services.generated_connection_manager import BookingRoutes
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,12 @@ class WelcomeScreen(MDScreen):
         """Called when entering the screen. Preloads potential next screens."""
         # Preload the next likely screen (optional) to reduce load times and help in transitioning
         Clock.schedule_once(self.preload_next)
+
+        # Fetch a test booking route
+        response = BookingRoutes(
+            client=self.manager.connection_client
+        ).booking_home_booking_get()
+        print(response)
 
     def preload_next(self, dt) -> None:
         """Preload the next screens for faster navigation.

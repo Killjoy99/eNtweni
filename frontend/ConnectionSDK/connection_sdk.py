@@ -84,12 +84,12 @@ class ConnectionManager:
                 if param_names:
                     params_str = ", ".join(param_names)
                     method_definitions.append(
-                        f"    def {method_name}(self, {params_str}, **kwargs):\n"
+                        f"    def {route['method'].lower()}_{method_name}(self, {params_str}, **kwargs):\n"
                     )
                 else:
                     # No parameters in the path
                     method_definitions.append(
-                        f"    def {method_name}(self, **kwargs):\n"
+                        f"    def {route['method'].lower()}_{method_name}(self, **kwargs):\n"
                     )
 
                 # Add request body information to the docstring
@@ -155,8 +155,8 @@ server_url = "http://127.0.0.1:8000"
 # Create a Client instance with cookies
 def create_client():
     # create a client session (client = create_client()) to use for that session (app lifetime)
-    cookies = load_cookies()
-    return httpx.Client(cookies=cookies)
+    # cookies = load_cookies()
+    return httpx.Client()
 
 
 """
