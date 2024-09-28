@@ -3,10 +3,10 @@ name: EntweniBooking
 on:
   push:
     branches:
-      - build-booking
+      - booking-build
   pull_request:
     branches:
-      - build-booking
+      - booking-build
 
 jobs:
   build:
