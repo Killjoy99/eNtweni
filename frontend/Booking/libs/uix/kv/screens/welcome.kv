@@ -1,16 +1,15 @@
 <WelcomeScreen>
+    name: "welcome"
     md_bg_color: app.theme_cls.backgroundColor
 
     MDBoxLayout:
         MDLabel:
             id: label
-            markup: True
             text: root.status
 
         MDLabel:
             id: label2
-            markup: True
-            text: root.name
+            text: f"Welcome: {root.username}"
 
     MDBoxLayout:
         orientation: 'horizontal'

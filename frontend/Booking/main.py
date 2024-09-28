@@ -4,9 +4,6 @@ import logging
 from kivy.core.window import Window
 from kivy.utils import platform
 from kivymd.app import MDApp
-from libs.applibs.services.connection_manager import ConnectionManager
-from libs.applibs.services.service_locator import ServiceLocator
-from libs.applibs.services.shared_data_service import SharedDataService
 
 # Import the optimized Root class
 # from libs.uix.optimised_root import Root
@@ -31,10 +28,6 @@ class EntweniBooking(MDApp):
             Window.size = (420, 840)
 
         # Register the services for later referencing from all screens
-        connection_manager = ConnectionManager()
-        shared_data_service = SharedDataService()
-        ServiceLocator.register_service("connection_manager", connection_manager)
-        ServiceLocator.register_service("shared_data", shared_data_service)
         # Initialize the root widget
         self.root = Root()
         self.root.push("welcome")

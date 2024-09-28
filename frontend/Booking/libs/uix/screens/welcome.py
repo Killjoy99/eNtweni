@@ -1,65 +1,46 @@
 import logging
 
+from kivy.clock import Clock
 from kivy.properties import StringProperty
 from kivymd.uix.screen import MDScreen
-from libs.applibs.services.connection_manager import ConnectionManager
-from libs.applibs.services.observable import Observer
-from libs.applibs.services.service_locator import ServiceLocator
+from libs.applibs.services.generated_connection_manager import BookingRoutes
 
 logger = logging.getLogger(__name__)
 
 
-class WelcomeScreen(MDScreen, Observer):
-    name: str = StringProperty("")
-    status: str = StringProperty("")
+class WelcomeScreen(MDScreen):
+    username = StringProperty("Change Me")  # Kivy's StringProperty handles the type
+    status = StringProperty("")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def on_enter(self):
+        """Called when entering the screen. Preloads potential next screens."""
+        # Preload the next likely screen (optional) to reduce load times and help in transitioning
+        Clock.schedule_once(self.preload_next)
 
-        # Store services in instance variables to avoid multiple lookups
-        self.connection_manager = None
-        self.shared_data_service = None
+        # Fetch a test booking route
+        response = BookingRoutes(
+            client=self.manager.connection_client
+        ).get_booking_home_booking_get()
+        print(response)
 
-        try:
-            # Retrieve connection manager service
-            self.connection_manager = ServiceLocator.get_service("connection_manager")
-            self.connection_manager.register_observer(self)
+    def preload_next(self, dt) -> None:
+        """Preload the next screens for faster navigation.
 
-            # Retrieve shared data service
-            self.shared_data_service = ServiceLocator.get_service("shared_data")
-            self.shared_data_service.register_observer(self)
-        except KeyError as e:
-            logger.error(f"Service not found: {e}")
-
-    # def on_enter(self):
-    #     """Called when the screen is displayed."""
-    #     self.connect_to_google()
+        Args:
+            dt (float): Time delay (passed by Clock). Not used directly.
+        """
+        self.manager.preload_screens(
+            ["hello_screen", "settings_screen", "profile_screen"]
+        )
+        self.status = "Screens preloaded successfully"
 
     def change_name(self, new_name: str) -> None:
+        """Change the user's name and store it in shared data."""
         logger.info(f"Changing name to: {new_name}")
-        self.name = new_name  # This updates the UI dynamically
-        self.manager.set_shared_data("name", new_name)
-
-        # notify the observers
-        self.notify_observers("name", new_name)
+        self.username = new_name  # This updates the UI dynamically
+        self.manager.set_shared_data("username", new_name)
 
     def on_leave(self):
-        """Unregister observers and disconnect when leaving the screen."""
-        try:
-            # Unregister observers to avoid memory leaks
-            if self.connection_manager:
-                self.connection_manager.unregister_observer(self)
-                self.connection_manager.disconnect()
-            if self.shared_data_service:
-                self.shared_data_service.unregister_observer(self)
-        except KeyError as e:
-            logger.error(f"Service not found during exit: {e}")
-
-    def connect_to_google(self):
-        conn_manager = ConnectionManager()
-        conn_manager.connect()  # connect to the server
-        data = conn_manager.fetch_data("https://www.goog.com/")
-        self.status = data.json()
-        print(data.json().get("Set-Cookie"))
-
-        conn_manager.disconnect()
+        """Called when leaving the screen. Removes this screen from cache."""
+        # Remove this screen from the cache as it will never be needed anymore
+        self.manager.remove_screen_from_cache(self.name)
