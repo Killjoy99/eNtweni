@@ -1,7 +1,7 @@
 
 import httpx
 
-from libs.applibs.utils import load_cookies, save_cookies  # noqa: F401
+# from libs.applibs.utils import load_cookies, save_cookies  # noqa: F401
 
 online_server_url = "https://embakweaziwe.onrender.com"
 server_url = "http://127.0.0.1:8000"

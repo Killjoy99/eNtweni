@@ -34,6 +34,9 @@ class Root(MDScreenManager):
         super().__init__(**kwargs)
         Window.bind(on_keyboard=self._handle_keyboard)
 
+        self.load_screens_data()
+
+    def load_screens_data(self):
         try:
             with open(file_utils.abs_path("assets/screens.json")) as f:
                 self.screens_data = json.load(f)

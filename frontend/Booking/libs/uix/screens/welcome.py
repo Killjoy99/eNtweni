@@ -20,7 +20,7 @@ class WelcomeScreen(MDScreen):
         # Fetch a test booking route
         response = BookingRoutes(
             client=self.manager.connection_client
-        ).booking_home_booking_get()
+        ).get_booking_home_booking_get()
         print(response)
 
     def preload_next(self, dt) -> None:
